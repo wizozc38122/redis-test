@@ -5,7 +5,7 @@ services:
     image: redis:7.4-alpine
     container_name: redis-2
     restart: always
-    network_mode: host  # 同樣走高效率 host 網路
+    network_mode: host
     environment:
       - REDIS_PASSWORD=${REDIS_PASS}
     command: >
@@ -17,4 +17,4 @@ services:
       --masterauth ${REDIS_PASS:-MyDefaultPasswordDoNotUse}
       --appendonly yes
       --maxclients 10000
-      --replicaof 172.17.0.3 6379  # 🟢 關鍵：填入剛剛查到的 lab-node-1 IP
+      --replicaof 172.17.0.3 6379
