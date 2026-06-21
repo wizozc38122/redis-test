@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  redis-master:
+    image: redis:7.4-alpine
+    container_name: redis-master
+    restart: always
+    network_mode: host  # 效能最好，直接敲主機 Port
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - redis-data:/data
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+volumes:
+  redis-data:
