@@ -1,28 +1,20 @@
+version: '3.8'
+
 services:
   redis-2:
     image: redis:7.4-alpine
     container_name: redis-2
     restart: always
-    # 走 host 網路模式，直接敲主機 Port，效能最好
-    network_mode: host  
+    network_mode: host  # 同樣走高效率 host 網路
     environment:
       - REDIS_PASSWORD=${REDIS_PASS}
-    configs:
-      # ⬇️ 告訴 Docker：我要把下面定義的 config，像檔案一樣塞進容器內的特定路徑
-      - source: redis_v1
-        target: /usr/local/etc/redis/redis.conf
-    command: redis-server /usr/local/etc/redis/redis.conf
-
-# 🛠️ 這裡就是你的 ConfigMap 區塊！
-configs:
-  redis_v1:
-    inline: |
-      # 這裡是你的實體 redis.conf 內容，你想寫幾百行都可以
-      port 6379
-      bind 0.0.0.0
-      protected-mode no
-      requirepass MyDefaultPasswordDoNotUse
-      appendonly yes
-      maxclients 10000
-      tcp-keepalive 300
-      replicaof 172.17.0.3 6379
+    command: >
+      redis-server
+      --port 6379
+      --bind 0.0.0.0
+      --protected-mode no
+      --requirepass ${REDIS_PASS:-MyDefaultPasswordDoNotUse}
+      --masterauth ${REDIS_PASS:-MyDefaultPasswordDoNotUse}
+      --appendonly yes
+      --maxclients 10000
+      --replicaof 172.17.0.3 6379  # 🟢 關鍵：填入剛剛查到的 lab-node-1 IP
