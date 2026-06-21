@@ -6,17 +6,12 @@ services:
     container_name: redis-1
     restart: always
     network_mode: host  # 生產級 host 網路
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASS}
-    configs:
-      # ⬇️ 告訴 Docker：我要把下面定義的 config，塞進容器內
-      - source: redis_config_v1
-        target: /usr/local/etc/redis/redis.conf
-    command: redis-server /usr/local/etc/redis/redis.conf
-
-# 🛠️ 這裡改成寫實體檔案路徑，不要用 inline！
-configs:
-  redis_config_v1:
-    # 🟢 關鍵：因為它跟 docker-compose.yml 都在同一個 node-1 目錄下
-    # 直接寫 ./redis.conf，各版本的 Docker Compose 100% 絕對看得懂！
-    file: ./redis.conf
+    # 🟢 核心特技：直接把設定檔的內容，改用參數（Arguments）在啟動時灌進去
+    command: >
+      redis-server
+      --port 6379
+      --bind 0.0.0.0
+      --protected-mode no
+      --requirepass ${REDIS_PASS:-MyDefaultPasswordDoNotUse}
+      --appendonly yes
+      --maxclients 10000
